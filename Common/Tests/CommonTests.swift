@@ -14,7 +14,7 @@ final class CommonTests: XCTestCase {
     func testCommon() {
         XCTAssertEqual(Common.version, "0.0.0")
     }
-
+    
     static var allTests = [
         ("testCommon", testCommon)
     ]

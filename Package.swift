@@ -35,9 +35,13 @@ let package = Package(
         
         //MARK: Domain
         .target(name: "Domain",
+                dependencies: [
+                    .target(name: "Common")
+                ],
                 path: "Domain/Domain"),
         .testTarget(name: "DomainTests",
                     dependencies: [
+                        .target(name: "Common"),
                         .target(name: "Domain")
                     ],
                     path: "Domain/Tests"),
