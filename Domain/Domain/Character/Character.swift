@@ -8,18 +8,12 @@
 
 import Foundation
 
-public class Character: Identifiable, Codable {
+public class Character: Identifiable {
     public typealias ID = UInt
     
     public internal(set) var id: ID = 0
     public internal(set) var name: String?
     public internal(set) var description: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case description
-    }
 }
 
 extension Character: Hashable {

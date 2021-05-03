@@ -15,8 +15,9 @@ public struct Exception: Error {
     public let file: String
     public let version: String
     public let line: Int
+    public let underlingError: Error?
     
-    public init(what: String, reason: String, file: String? = nil, line: Int = 0) {
+    public init(what: String, reason: String, file: String? = nil, line: Int = 0, underlingError: Error? = nil) {
         self.what = what
         self.reason = reason
         if let file = file {
@@ -24,8 +25,9 @@ public struct Exception: Error {
         } else {
             self.file = ""
         }
-        self.line = line
         version = Common.version
+        self.line = line
+        self.underlingError = underlingError
     }
 }
 
@@ -36,9 +38,13 @@ extension Exception: CustomNSError {
     }
 
     public var errorUserInfo: [String: Any] {
-        return [NSLocalizedDescriptionKey: what,
-                NSLocalizedFailureReasonErrorKey: reason,
-                NSDebugDescriptionErrorKey: description]
+        var userInfo: [String: Any] = [NSLocalizedDescriptionKey: what,
+                                       NSLocalizedFailureReasonErrorKey: reason,
+                                       NSDebugDescriptionErrorKey: description]
+        if let error = underlingError as NSError? {
+            userInfo[NSUnderlyingErrorKey] = error
+        }
+        return userInfo
     }
     
     public static var errorDomain: String {

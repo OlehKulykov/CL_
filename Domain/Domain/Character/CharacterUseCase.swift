@@ -9,7 +9,7 @@
 import Foundation
 import Common
 
-public protocol CharacterUseCaseInterface: class {
+public protocol CharacterUseCaseInterface: AnyObject {
     
     func getCharacters(limit: PageLimit, completion: (Result<Page<Character>, Error>) -> Void) throws
     

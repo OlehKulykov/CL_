@@ -9,7 +9,7 @@
 import Foundation
 import Common
 
-public protocol Requestable: class {
+public protocol Requestable: AnyObject {
     var path: String { get }
     var method: HTTPMethod { get }
     var parameters: [String: String]? { get }

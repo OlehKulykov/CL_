@@ -17,6 +17,6 @@ public extension Data {
                             file: #file,
                             line: #line)
         }
-        self.append(stringData)
+        append(stringData)
     }
 }

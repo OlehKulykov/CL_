@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol NetworkServiceable: class {
+public protocol NetworkServiceable: AnyObject {
     
     func send(request: Requestable, completion: @escaping (Result<NetworkSessionData, NetworkError>) -> Void)
 }
