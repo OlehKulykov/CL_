@@ -8,35 +8,26 @@
 
 import Foundation
 
-public enum NetworkSessionFormat {
-    case json
-}
-
-public struct NetworkSessionData {
-    let data: Data
-    let format: NetworkSessionFormat?
-    let encoding: String.Encoding?
-    
-    init(data: Data, format: NetworkSessionFormat? = nil, encoding: String.Encoding? = nil) {
-        self.data = data
-        self.format = format
-        self.encoding = encoding
-    }
-}
-
 public protocol NetworkSessionable {
     
-    func loadData(request: URLRequest, completion: @escaping (Result<NetworkSessionData, NetworkError>) -> Void)
+    func loadData(request: URLRequest, completion: @escaping (Result<Data?, NetworkError>) -> Void)
     
     func invalidate()
 }
 
 extension URLSession: NetworkSessionable {
     
-    public func loadData(request: URLRequest, completion: @escaping (Result<NetworkSessionData, NetworkError>) -> Void) {
+    public func loadData(request: URLRequest, completion: @escaping (Result<Data?, NetworkError>) -> Void) {
         let task = dataTask(with: request) { (data, response, error) in
-            if let error = error as? URLError {
-                completion(.failure(.error(error)))
+            if let urlError = error as? URLError {
+                switch urlError.code {
+                case .notConnectedToInternet:
+                    completion(.failure(.notConnected))
+                case .cancelled:
+                    completion(.failure(.cancelled))
+                default:
+                    completion(.failure(.error(urlError)))
+                }
                 return
             }
             
@@ -48,7 +39,7 @@ extension URLSession: NetworkSessionable {
                 }
             }
             
-            completion(.success(NetworkSessionData(data: data ?? Data())))
+            completion(.success(data))
         }
         task.resume()
     }

@@ -10,21 +10,21 @@ import Foundation
 
 public protocol NetworkServiceable: AnyObject {
     
-    func send(request: Requestable, completion: @escaping (Result<NetworkSessionData, NetworkError>) -> Void)
+    func send(request: Requestable, completion: @escaping (Result<Data?, NetworkError>) -> Void)
 }
 
 public final class NetworkService: NetworkServiceable {
     let session: NetworkSessionable
     let configuration: RequestConfigurable
     
-    public func send(request: Requestable, completion: @escaping (Result<NetworkSessionData, NetworkError>) -> Void) {
+    public func send(request: Requestable, completion: @escaping (Result<Data?, NetworkError>) -> Void) {
         do {
             let urlRequest = try request.createRequest(config: configuration)
             session.loadData(request: urlRequest) { result in
                 completion(result)
             }
-        } catch let error as URLError {
-            completion(.failure(.error(error)))
+        } catch let error as NetworkError {
+            completion(.failure(error))
         } catch let error {
             completion(.failure(.error(URLError(.unknown, userInfo: [NSUnderlyingErrorKey: error]))))
         }

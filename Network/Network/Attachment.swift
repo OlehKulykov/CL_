@@ -64,11 +64,15 @@ public extension Attachment {
         header += "\r\n\r\n"
         
         var data = Data()
-        try data.append(header)
+        if !data.append(header) {
+            throw NetworkError.createRequest
+        }
         
         switch self {
         case .string(let text):
-            try data.append(text)
+            if !data.append(text) {
+                throw NetworkError.createRequest
+            }
         case .binary(let contentData, _),
              .png(let contentData, _),
              .jpeg(let contentData, _):

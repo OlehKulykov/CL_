@@ -19,7 +19,8 @@ final class NetworkTests: XCTestCase {
             expectation.fulfill()
             switch result {
             case .success(let receivedData):
-                XCTAssertTrue(receivedData.data == validData)
+                XCTAssertNotNil(receivedData)
+                XCTAssertTrue(receivedData == validData)
             default:
                 XCTFail("Should be success.")
             }

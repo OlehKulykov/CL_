@@ -11,21 +11,29 @@ import Foundation
 import XCTest
 @testable import Common
 
-final class Dictionary_MapTests: XCTestCase {
+final class ExceptionTests: XCTestCase {
 
-    func testMapNumberValuesToStrings() {
-        let src: [String: Int] = ["key1": 1]
-        let dst: [String: String] = src.map { (key, value) in
-            return (key, "\(value)")
-        }
-        XCTAssertTrue(src.count == dst.count)
-        let value1 = dst["key1"]
-        XCTAssertNotNil(value1)
-        XCTAssertEqual(value1, "1")
+    func testURLUnderlingError() {
+//        let urlError = URLError(.unknown, userInfo: [:])
+//        let exception = Exception(file: #file, line: #line, underlingError: urlError)
+//        let userInfo = exception.errorUserInfo
+//        let underlingError = userInfo[NSUnderlyingErrorKey] as? NSError
+//        XCTAssertNotNil(underlingError)
+        //XCTAssertEqual(underlingError, urlError)
+    }
+    
+    func testNSUnderlingError() {
+//        let nsError = NSError(domain: "testDomain", code: 0, userInfo: nil)
+//        let exception = Exception(file: #file, line: #line, underlingError: nsError)
+//        let userInfo = exception.errorUserInfo
+//        let underlingError = userInfo[NSUnderlyingErrorKey] as? NSError
+//        XCTAssertNotNil(underlingError)
+//        XCTAssertEqual(underlingError, nsError)
     }
     
     static var allTests = [
-        ("testMapNumberValuesToStrings", testMapNumberValuesToStrings)
+        ("testURLUnderlingError", testURLUnderlingError),
+        ("testNSUnderlingError", testNSUnderlingError)
     ]
 }
 

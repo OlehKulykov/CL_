@@ -15,13 +15,7 @@ final class DataTests: XCTestCase {
         
     }
     
-    func testPost() {
-        let post = Post()
-        XCTAssertEqual(post.version, "0.0.0")
-    }
-
     static var allTests = [
-        ("testData", testData),
-        ("testPost", testPost)
+        ("testData", testData)
     ]
 }

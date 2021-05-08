@@ -9,11 +9,16 @@
 import Foundation
 import Common
 
+public enum CharacterUseCaseError: Error {
+    case reachedMaximumLimit
+    case underlying(_ : Error)
+}
+
 public protocol CharacterUseCaseInterface: AnyObject {
     
-    func getCharacters(limit: PageLimit, completion: (Result<Page<Character>, Error>) -> Void) throws
+    func getCharacters(limit: PageLimit, completion: @escaping (Result<Page<Character>, CharacterUseCaseError>) -> Void)
     
-    func getCombinedCharacters(nextAfter page: Page<Character>, limit: PageLimit, completion: (Result<Page<Character>, Error>) -> Void) throws
+    func getCombinedCharacters(nextAfter page: Page<Character>, limit: PageLimit, completion: @escaping (Result<Page<Character>, CharacterUseCaseError>) -> Void)
 }
 
 public protocol CharacterFilterInterface {
@@ -22,11 +27,11 @@ public protocol CharacterFilterInterface {
 }
 
 public final class CharacterUseCase: CharacterUseCaseInterface {
-    private let charactersRepo: CharacterRepoInterface
+    private let charactersRepo: CharacterRepositoryInterface
     private let charactersFilter: CharacterFilterInterface?
     
-    public func getCharacters(limit: PageLimit, completion: (Result<Page<Character>, Error>) -> Void) throws {
-        try charactersRepo.getCharacters(0..<Int(limit)) { [weak self] result in
+    public func getCharacters(limit: PageLimit, completion: @escaping (Result<Page<Character>, CharacterUseCaseError>) -> Void) {
+        charactersRepo.getCharacters(0..<Int(limit)) { [weak self] result in
             guard let self = self else {
                 return
             }
@@ -42,15 +47,16 @@ public final class CharacterUseCase: CharacterUseCaseInterface {
         }
     }
     
-    public func getCombinedCharacters(nextAfter page: Page<Character>, limit: PageLimit, completion: (Result<Page<Character>, Error>) -> Void) throws {
+    public func getCombinedCharacters(nextAfter page: Page<Character>, limit: PageLimit, completion: @escaping (Result<Page<Character>, CharacterUseCaseError>) -> Void) {
         var combinedCharacters = page.entities
         let ignored = page.ignored
         let lowerBound = ignored + combinedCharacters.count
         let upperBound = UInt(lowerBound) + UInt(limit)
         if upperBound > Int.max {
-            throw Exception(what: "The total number of characters is greater than supports int type.", reason: "The total number is: \(upperBound)", file: #file, line: #line)
+            completion(.failure(.reachedMaximumLimit))
+            return
         }
-        try charactersRepo.getCharacters(lowerBound..<Int(upperBound)) { [weak self] result in
+        charactersRepo.getCharacters(lowerBound..<Int(upperBound)) { [weak self] result in
             guard let self = self else {
                 return
             }
@@ -66,7 +72,7 @@ public final class CharacterUseCase: CharacterUseCaseInterface {
         }
     }
     
-    init(repository: CharacterRepoInterface, filter: CharacterFilterInterface? = nil) {
+    init(repository: CharacterRepositoryInterface, filter: CharacterFilterInterface? = nil) {
         charactersRepo = repository
         charactersFilter = filter
     }

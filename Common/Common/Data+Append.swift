@@ -10,13 +10,11 @@ import Foundation
 
 public extension Data {
     
-    mutating func append(_ string: String, using encoding: String.Encoding = .utf8) throws {
+    mutating func append(_ string: String, using encoding: String.Encoding = .utf8) -> Bool {
         guard let stringData = string.data(using: encoding) else {
-            throw Exception(what: "Appending string to data.",
-                            reason: "String to data convertion failed using encoding: \(encoding).",
-                            file: #file,
-                            line: #line)
+            return false
         }
         append(stringData)
+        return true
     }
 }

@@ -17,7 +17,7 @@ final class Data_AppendTests: XCTestCase {
         let strings = ["", "Hello", "äг"]
         for string in strings {
             var data = Data()
-            XCTAssertNoThrow(try data.append(string))
+            XCTAssertTrue(data.append(string))
             if string.isEmpty {
                 XCTAssertTrue(data.count == 0)
                 XCTAssertTrue(data.isEmpty)

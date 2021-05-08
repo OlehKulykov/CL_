@@ -15,6 +15,7 @@ public protocol Requestable: AnyObject {
     var parameters: [String: String]? { get }
     var attachments: [String: Attachment]? { get }
     
+    /// - Throws: NetworkError.createRequest
     func createRequest(config: RequestConfigurable) throws -> URLRequest
 }
 
@@ -24,22 +25,6 @@ public final class Request: Requestable {
     public private(set) var method: HTTPMethod
     public private(set) var parameters: [String: String]?
     public private(set) var attachments: [String: Attachment]?
-    
-    private func createUrlEncodedRequest(config: RequestConfigurable, method: HTTPMethod) throws -> URLRequest {
-        let url = try Request.createURL(base: config.base, path: path, queryParameters: parameters)
-        return Request.createURLRequest(url: url, config: config, method: method)
-    }
-    
-    private func createMultipartFormDataPOSTRequest(config: RequestConfigurable) throws -> URLRequest {
-        let url = try Request.createURL(base: config.base, path: path)
-        var request = Request.createURLRequest(url: url, config: config, method: .post)
-        if let multipartFormData = try Request.createMultipartFormData(parameters: parameters, attachments: attachments) {
-            request.httpBody = multipartFormData.1
-            request.setValue("multipart/form-data; boundary=\(multipartFormData.0)", forHTTPHeaderField: HTTPHeaderField.contentType.rawValue)
-            request.setValue("\(multipartFormData.1.count)", forHTTPHeaderField: HTTPHeaderField.contentLength.rawValue)
-        }
-        return request
-    }
     
     public func createRequest(config: RequestConfigurable) throws -> URLRequest {
         switch method {
@@ -67,6 +52,26 @@ public final class Request: Requestable {
     }
 }
 
+//MARK: Method specific request generation
+private extension Request {
+    
+    private func createUrlEncodedRequest(config: RequestConfigurable, method: HTTPMethod) throws -> URLRequest {
+        let url = try Request.createURL(base: config.base, path: path, queryParameters: parameters)
+        return Request.createURLRequest(url: url, config: config, method: method)
+    }
+    
+    private func createMultipartFormDataPOSTRequest(config: RequestConfigurable) throws -> URLRequest {
+        let url = try Request.createURL(base: config.base, path: path)
+        var request = Request.createURLRequest(url: url, config: config, method: .post)
+        if let multipartFormData = try Request.createMultipartFormData(parameters: parameters, attachments: attachments) {
+            request.httpBody = multipartFormData.1
+            request.setValue("multipart/form-data; boundary=\(multipartFormData.0)", forHTTPHeaderField: HTTPHeaderField.contentType.rawValue)
+            request.setValue("\(multipartFormData.1.count)", forHTTPHeaderField: HTTPHeaderField.contentLength.rawValue)
+        }
+        return request
+    }
+}
+
 //MARK: Generation helpers
 private extension Request {
     
@@ -78,7 +83,7 @@ private extension Request {
             return combinedUrl
         }
         guard var components = URLComponents(url: combinedUrl, resolvingAgainstBaseURL: false) else {
-            throw URLError(.badURL, userInfo: [NSURLErrorKey: combinedUrl])
+            throw NetworkError.createRequest
         }
         var queryItems = components.queryItems ?? []
         queryParameters.forEach { (name, value) in
@@ -86,7 +91,7 @@ private extension Request {
         }
         components.queryItems = queryItems
         guard let url = components.url else {
-            throw URLError(.badURL, userInfo: [NSURLErrorKey: combinedUrl])
+            throw NetworkError.createRequest
         }
         return url
     }
@@ -136,11 +141,15 @@ private extension Request {
         let boundary = "----BOUNDARY\(Int64(Date().timeIntervalSince1970))"
         for (name, attachment) in combined {
             if !data.isEmpty {
-                try data.append("\r\n")
+                if !data.append("\r\n") {
+                    throw NetworkError.createRequest
+                }
             }
             data.append(try attachment.multipartFormData(boundary: boundary, name: name))
         }
-        try data.append("\r\n--\(boundary)--")
+        if !data.append("\r\n--\(boundary)--") {
+            throw NetworkError.createRequest
+        }
         return (boundary, data)
     }
 }

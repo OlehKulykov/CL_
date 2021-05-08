@@ -8,12 +8,20 @@
 
 import Foundation
 
-public class Character: Identifiable {
+public struct Character: Identifiable {
     public typealias ID = UInt
     
-    public internal(set) var id: ID = 0
-    public internal(set) var name: String?
-    public internal(set) var description: String?
+    public let id: ID
+    public let name: String?
+    public let description: String?
+    
+    public init(id: ID,
+                name: String? = nil,
+                description: String? = nil) {
+        self.id = id
+        self.name = name
+        self.description = description
+    }
 }
 
 extension Character: Hashable {

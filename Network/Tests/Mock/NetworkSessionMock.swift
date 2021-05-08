@@ -14,9 +14,9 @@ class NetworkSessionMock: NetworkSessionable {
     let error: URLError?
     let statusCode: Int
     
-    func loadData(request: URLRequest, completion: @escaping (Result<NetworkSessionData, NetworkError>) -> Void) {
+    func loadData(request: URLRequest, completion: @escaping (Result<Data?, NetworkError>) -> Void) {
         if let data = data {
-            completion(.success(NetworkSessionData(data: data)))
+            completion(.success(data))
             return
         }
         
@@ -30,7 +30,7 @@ class NetworkSessionMock: NetworkSessionable {
             return
         }
         
-        completion(.success(NetworkSessionData(data: Data())))
+        completion(.success(nil))
     }
     
     func invalidate() {
