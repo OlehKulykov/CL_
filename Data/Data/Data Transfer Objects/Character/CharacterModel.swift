@@ -9,7 +9,7 @@
 import Foundation
 import Domain
 
-struct CharacterModel: Decodable {
+struct CharacterModel: Codable {
     let id: UInt
     let name: String?
     let description: String?
@@ -20,12 +20,12 @@ struct CharacterModel: Decodable {
         case description
     }
     
-    init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        id = try values.decode(UInt.self, forKey: .id)
-        name = try values.decodeIfPresent(String.self, forKey: .name)
-        description = try values.decodeIfPresent(String.self, forKey: .description)
-    }
+//    init(from decoder: Decoder) throws {
+//        let values = try decoder.container(keyedBy: CodingKeys.self)
+//        id = try values.decode(UInt.self, forKey: .id)
+//        name = try values.decodeIfPresent(String.self, forKey: .name)
+//        description = try values.decodeIfPresent(String.self, forKey: .description)
+//    }
 }
 
 extension CharacterModel: DomainMappable {
