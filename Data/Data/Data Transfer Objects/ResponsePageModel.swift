@@ -8,3 +8,19 @@
 
 import Foundation
 
+struct ResponsePageModel<Element> {
+    
+    let total: Int
+    let count: Int
+    let results: [Element]
+    
+    enum CodingKeys: String, CodingKey {
+        case total
+        case count
+        case results
+    }
+}
+
+extension ResponsePageModel: Codable where Element : Codable {
+    
+}

@@ -9,5 +9,6 @@
 import Foundation
 
 public enum DataRequest {
+    
     case characters(range: Range<Int>)
 }

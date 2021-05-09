@@ -13,10 +13,12 @@ internal extension DataRequest {
     
     var networkRequest: Network.Requestable {
         switch self {
-        case .characters(_):
-            let request = Network.Request(GET: "characters")
-            return request
+        case .characters(let range):
+            return Network.Request(GET: "characters",
+                                   parameters: [
+                                    "limit": "\(range.count)",
+                                    "offset": "\(range.startIndex)"
+                                   ])
         }
     }
 }
-
